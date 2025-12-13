@@ -9,7 +9,7 @@ from db import create_user, get_user, create_google_user
 load_dotenv()
 
 
-REDIRECT_URI = "https://similarly-listprice-arbor-paragraph.trycloudflare.com"
+REDIRECT_URI = st.secrets.get("redirect_uri", "https://similarly-listprice-arbor-paragraph.trycloudflare.com")
 
 
 GOOGLE_SCOPE = (
@@ -18,8 +18,8 @@ GOOGLE_SCOPE = (
 )
 
 
-GOOGLE_CLIENT_ID = "985077610080-u3ml16p73ia6kg7q4mempcntqcfbo2eh.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_CLIENT_ID = st.secrets["client_id"]
+GOOGLE_CLIENT_SECRET = st.secrets["client_secret"]
 
 google = OAuth2Component(
     client_id=GOOGLE_CLIENT_ID,
