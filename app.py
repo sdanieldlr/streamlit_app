@@ -8,6 +8,8 @@ from db import (
     get_user_notes,
     get_all_notes,
 )
+from llm_utils import chat_reply
+
 if "oauth_cleared" not in st.session_state:
     st.cache_data.clear()
     st.cache_resource.clear()
@@ -77,7 +79,28 @@ else:
         else:
             st.info("No notes available.")
     with tab3:
-        st.info("Chatbot with notes is not implemented yet.")
+        st.subheader("Chatbot")
+
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
+
+        # Display chat history
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
+
+        # User input
+        if prompt := st.chat_input("Ask me anything..."):
+            # Add user message to history
+            st.session_state.chat_history.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.write(prompt)
+
+            # Get AI response
+            response = chat_reply(prompt, st.session_state.chat_history[:-1])  # Exclude the latest user message from history for reply
+            st.session_state.chat_history.append({"role": "assistant", "content": response})
+            with st.chat_message("assistant"):
+                st.write(response)
 
     st.markdown("---")
     logout_button()
