@@ -1,3 +1,4 @@
+
 import sqlite3
 import os
 
@@ -48,80 +49,54 @@ def init_db():
 
 def create_user(email: str, password: str):
     """Creates a MANUAL (email/password) user."""
-    init_db()
     with _conn() as con:
         con.execute(
-            "INSERT INTO users(email, password, method) VALUES (?, ?, 'manual')",
-            (email, password)
+            "INSERT INTO users (email, password) VALUES (?, ?)",
+            (email, password),
         )
 
 
-def create_google_user(email: str, name: str):
-    """
-    Creates a GOOGLE user (email only, no password).
-    If user already exists, does nothing.
-    """
-    init_db()
-    with _conn() as con:
-        con.execute("""
-            INSERT OR IGNORE INTO users(email, name, method)
-            VALUES (?, ?, 'google')
-        """, (email, name))
-
-
 def get_user(email: str):
-    """Returns (id, email, password, name, method) or None."""
-    init_db()
+    """Retrieves a user by email."""
     with _conn() as con:
-        return con.execute(
-            "SELECT id, email, password, name, method FROM users WHERE email=?",
-            (email,)
-        ).fetchone()
+        cur = con.execute("SELECT * FROM users WHERE email = ?", (email,))
+        return cur.fetchone()
 
 
-def delete_user(email: str):
-    init_db()
+def create_google_user(email: str, name: str):
+    """Creates a GOOGLE user."""
     with _conn() as con:
-        con.execute("DELETE FROM users WHERE email=?", (email,))
-
-
-def list_users():
-    """Optional helper: list all users."""
-    init_db()
-    with _conn() as con:
-        return con.execute(
-            "SELECT id, email, name, method, created_at FROM users"
-        ).fetchall()
+        con.execute(
+            "INSERT INTO users (email, name, method) VALUES (?, ?, ?)",
+            (email, name, "google"),
+        )
 
 
 # ---------- NOTE FUNCTIONS ----------
 
 def create_note(user_id: int, title: str, content: str):
-    init_db()
+    """Creates a note for a user."""
     with _conn() as con:
         con.execute(
-            "INSERT INTO notes(user_id, title, content) VALUES (?, ?, ?)",
+            "INSERT INTO notes (user_id, title, content) VALUES (?, ?, ?)",
             (user_id, title, content),
         )
 
 
 def get_user_notes(user_id: int):
-    """All notes for a specific user."""
-    init_db()
+    """Retrieves all notes for a user."""
     with _conn() as con:
-        return con.execute(
-            "SELECT id, title, content, created_at "
-            "FROM notes WHERE user_id=? ORDER BY created_at DESC",
-            (user_id,)
-        ).fetchall()
+        cur = con.execute(
+            "SELECT id, title, content, created_at FROM notes WHERE user_id = ? ORDER BY created_at DESC",
+            (user_id,),
+        )
+        return cur.fetchall()
 
 
 def get_all_notes():
-    """All notes from all users, joined with user emails."""
-    init_db()
+    """Retrieves all notes from all users."""
     with _conn() as con:
-        return con.execute(
-            "SELECT notes.id, users.email, notes.title, notes.content, notes.created_at "
-            "FROM notes JOIN users ON notes.user_id = users.id "
-            "ORDER BY notes.created_at DESC"
-        ).fetchall()
+        cur = con.execute(
+            "SELECT notes.id, users.email, notes.title, notes.content, notes.created_at FROM notes JOIN users ON notes.user_id = users.id ORDER BY notes.created_at DESC"
+        )
+        return cur.fetchall()
