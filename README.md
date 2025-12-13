@@ -1,4 +1,4 @@
-# Streamlit Notes App with LLM & Google OAuth
+# The Notes App (Streamlit App with LLM & Google OAuth)
 
 A full-stack notes application built with Streamlit, featuring user authentication, SQLite database, PDF uploads, and OpenAI-powered chatbot.
 
@@ -24,10 +24,21 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 ## Instructions for Peers/Testers
 
 ### 1) Install
-```bash
 
+**Option A: From ZIP file (for submission)**
+```bash
+# Extract the ZIP file, then navigate to the folder
+cd streamlit_app
+```
+
+**Option B: Clone from GitHub (for peers/testers)**
+```bash
 git clone https://github.com/sdanieldlr/streamlit_app
 cd streamlit_app
+```
+
+**Then continue with:**
+```bash
 python -m venv .venv
 .venv\Scripts\activate   # Windows
 # or
