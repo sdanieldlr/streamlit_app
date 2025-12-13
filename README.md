@@ -1,4 +1,4 @@
-# Streamlit Notes App with LLM & Google OAuth
+# The Notes App (Streamlit App with LLM & Google OAuth)
 
 A full-stack notes application built with Streamlit, featuring user authentication, SQLite database, PDF uploads, and OpenAI-powered chatbot.
 
