@@ -4,3 +4,4 @@ streamlit-oauth
 requests
 openai
 bcrypt
+PyPDF2

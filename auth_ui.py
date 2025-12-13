@@ -72,8 +72,8 @@ def _handle_google_result(token: dict):
     st.session_state["user"] = {
         "id": row[0],
         "email": row[1],
-        "name": row[3] or row[1],
-        "method": row[4] or "google",
+        "name": row[4] or row[1],
+        "method": row[5] or "google",
     }
 
     st.session_state["google_token"] = token
@@ -135,8 +135,8 @@ def login_view():
                 st.session_state["user"] = {
                     "id": user_id,
                     "email": row[1],
-                    "name": row[3] or row[1],
-                    "method": row[4] or "manual",
+                    "name": row[4] or row[1],
+                    "method": row[5] or "manual",
                 }
                 st.success("Logged in.")
                 st.rerun()
@@ -162,32 +162,68 @@ def login_view():
     else:
         st.info("Already authenticated with Google.")
 
-def logout_button():
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Logout"):
-            st.session_state.pop("user", None)
-            st.session_state.pop("google_token", None)
-            st.rerun()
-    with col2:
-        if st.button("Delete Account", type="secondary"):
-            delete_account_view()
+def account_view():
+    """Account management page with logout, change password, and delete account."""
+    user = st.session_state.get("user")
+    if not user:
+        st.error("No active session.")
+        return
 
-
-def delete_account_view():
-    """Shows confirmation dialog for account deletion."""
+    st.subheader("Account Management")
+    st.write(f"**Email:** {user.get('email')}")
+    st.write(f"**Name:** {user.get('name')}")
+    st.write(f"**Login Method:** {user.get('method', 'manual')}")
+    
+    st.markdown("---")
+    
+    # Logout section
+    st.subheader("Log Out")
+    if st.button("Logout", type="primary"):
+        st.session_state.pop("user", None)
+        st.session_state.pop("google_token", None)
+        st.rerun()
+    
+    st.markdown("---")
+    
+    # Change password section (only for manual login users)
+    if user.get("method") == "manual" or not user.get("method"):
+        st.subheader("Change Password")
+        
+        current_pwd = st.text_input("Current Password", type="password", key="current_pwd")
+        new_pwd = st.text_input("New Password", type="password", key="new_pwd")
+        confirm_new_pwd = st.text_input("Confirm New Password", type="password", key="confirm_new_pwd")
+        
+        if st.button("Change Password", type="secondary"):
+            if not current_pwd or not new_pwd or not confirm_new_pwd:
+                st.warning("Please fill in all password fields.")
+            elif new_pwd != confirm_new_pwd:
+                st.error("New passwords do not match.")
+            else:
+                # Verify current password
+                from db import verify_user, update_password
+                user_id = verify_user(user.get("email"), current_pwd)
+                if user_id:
+                    if update_password(user_id, new_pwd):
+                        st.success("Password changed successfully!")
+                    else:
+                        st.error("Failed to update password. Please try again.")
+                else:
+                    st.error("Current password is incorrect.")
+        
+        st.markdown("---")
+    else:
+        st.info("Password change is only available for manual login accounts.")
+        st.markdown("---")
+    
+    # Delete account section
+    st.subheader("Delete Account")
     st.warning("⚠️ This action is permanent. All your notes will be deleted.")
     
-    if st.button("Confirm: Delete my account", type="primary"):
-        user = st.session_state.get("user")
-        if user and isinstance(user, dict) and user.get("id"):
-            from db import delete_user
-            if delete_user(user["id"]):
-                st.session_state.clear()
-                st.success("Your account has been deleted.")
-                st.rerun()
-            else:
-                st.error("Error deleting account. Please try again.")
+    if st.button("Delete My Account", type="secondary"):
+        from db import delete_user
+        if delete_user(user["id"]):
+            st.session_state.clear()
+            st.success("Your account has been deleted.")
+            st.rerun()
         else:
-            st.error("No active session.")
-        st.rerun()
+            st.error("Error deleting account. Please try again.")
