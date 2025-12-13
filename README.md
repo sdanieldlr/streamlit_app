@@ -1,6 +1,6 @@
 # Streamlit Notes App with LLM & Google OAuth
 
-A full-stack notes application built with Streamlit, featuring user authentication, SQLite database, and OpenAI integration.
+A full-stack notes application built with Streamlit, featuring user authentication, SQLite database, PDF uploads, and OpenAI-powered chatbot.
 
 ## 🎥 Demo Video
 [Insert your video link here]
@@ -8,46 +8,81 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 ## ✨ Features Implemented
 
 ### Core Features:
-- ✅ User authentication (Sign up / Login)
+- ✅ User authentication (Sign up / Login with email/password)
 - ✅ SQLite database with CRUD operations
-- ✅ Personal notes management
-- ✅ View all users' notes
+- ✅ Create, view, and delete personal notes
+- ✅ View all users' notes with author information
+- ✅ PDF upload and embedded viewer
+- ✅ Account management page with logout, password change, and account deletion
 
 ### Bonus Features (+40 Points):
 - ✅ **Google Sign-in** (+20 points) - OAuth 2.0 integration
-- ✅ **Chatbot UI** (+10 points) - GPT-4 powered assistant
-- ✅ **Hashed Passwords** (+5 points) - Secure password storage
+- ✅ **Chatbot UI** (+10 points) - GPT-4o-mini powered assistant that can read note content and PDFs
+- ✅ **Hashed Passwords** (+5 points) - Secure bcrypt password storage
 - ✅ **Public Link** (+5 points) - Cloudflare tunnel deployment
 
-## 🚀 How to Run Locally
+## 🚀 Quick Start for Peers/Testers
 
-### 1. Install Dependencies
+### Prerequisites
+- Python 3.8+
+- OpenAI API key (for chatbot functionality)
+- Google OAuth credentials (optional, for Google sign-in)
+
+### 1. Clone & Install
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd streamlit_app
+
+# Create virtual environment
 python -m venv .venv
+
+# Activate virtual environment
 .venv\Scripts\activate  # Windows
-# OR
 source .venv/bin/activate  # macOS/Linux
 
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configure API Keys
+### 2. Configure Secrets
 
-**For OpenAI (Required for Chatbot):**
+#### Required: OpenAI API Key
+Copy the example file and add your key:
+```bash
+# Windows
+copy secrets.py.example secrets.py
 
-Create `secrets.py` in the root folder:
-```python
-OPENAI_API_KEY = "sk-your-key-here"
+# macOS/Linux
+cp secrets.py.example secrets.py
 ```
 
-**For Google OAuth (Optional):**
+Then edit `secrets.py`:
+```python
+OPENAI_API_KEY = "sk-your-actual-openai-key"
+```
 
-Create `.streamlit/secrets.toml`:
+#### Optional: Google OAuth (for +20 bonus points)
+Copy the example file and add your credentials:
+```bash
+# Windows
+copy .streamlit\secrets.toml.example .streamlit\secrets.toml
+
+# macOS/Linux
+cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+```
+
+Then edit `.streamlit/secrets.toml`:
 ```toml
-client_id = "your-google-client-id"
-client_secret = "your-google-client-secret"
+client_id = "your-client-id.apps.googleusercontent.com"
+client_secret = "your-client-secret"
 redirect_uri = "http://localhost:8501"
 ```
+
+**Get Google OAuth credentials:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create OAuth 2.0 Client ID (Web application)
+3. Add authorized redirect URI: `http://localhost:8501`
 
 ### 3. Run the App
 ```bash
@@ -56,12 +91,17 @@ streamlit run app.py
 
 The app will open at `http://localhost:8501`
 
-## 🌐 Deploy Publicly (Cloudflare Tunnel)
+### 4. Test Features
+- **Sign up** with email/password or Google
+- **Create notes** with optional PDF attachments
+- **Chat** with the AI assistant about your notes
+- **Manage account** - change password, logout, delete account
+- **View all notes** from all users
 
-1. Install Cloudflare tunnel:
-   ```bash
-   # Download from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/
-   ```
+## 🌐 Deploy Publicly (Cloudflare Tunnel) - For +5 Bonus
+
+### Option 1: Quick Tunnel (No Account Required)
+1. Download Cloudflare tunnel from [here](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/)
 
 2. Run your Streamlit app:
    ```bash
@@ -73,21 +113,81 @@ The app will open at `http://localhost:8501`
    cloudflared tunnel --url http://localhost:8501
    ```
 
-4. Copy the public URL provided (e.g., `https://xyz.trycloudflare.com`)
+4. Copy the public URL (e.g., `https://xyz.trycloudflare.com`)
 
-## 📁 Project Structure
+5. **Important for Google OAuth:** Update your redirect URI in:
+   - `.streamlit/secrets.toml` - Change `redirect_uri` to your Cloudflare URL
+   - [Google Cloud Console](https://console.cloud.google.com/apis/credentials) - Add Cloudflare URL to authorized redirect URIs
 
+### Option 2: Streamlit Community Cloud (Free, Persistent)
+1. Push your code to GitHub
+2. Go to [share.streamli        # Main application with tabs (My Notes, All Notes, Chatbot, Account)
+├── auth_ui.py                  # Authentication views (Login, Signup, Account management)
+├── db.py                       # Database layer (SQLite operations, user/note CRUD)
+├── llm_utils.py                # OpenAI integration (chatbot functionality)
+├── secrets.py                  # API keys (NOT in repo - use secrets.py.example)
+├── secrets.py.example          # Template for secrets.py
+├── requirements.txt            # Python dependencies
+├── README.md                   # This file
+├── .gitignore                  # Git ignore rules
+├── .streamlit/
+│   ├── secrets.toml            # OAuth credentials (NOT in repo - use example)
+│   └── secrets.toml.example    # Template for secrets.toml
+└── data/
+    ├── app.db                  # SQLite database (auto-created)
+    └── pdfs/                   # Uploaded PDF storage (auto-created)
 ```
-streamlit_app/
-├── app.py              # Main Streamlit application
-├── auth_ui.py          # Login/Signup UI and Google OAuth
-├── db.py               # SQLite database operations
-├── llm_utils.py        # OpenAI integration (summarize, chat)
-├── secrets.py          # API keys (DO NOT COMMIT)
-├── requirements.txt    # Python dependencies
-└── README.md           # This file
+
+## 🔒 Security & Git Best Practices
+
+**Files excluded from Git (in `.gitignore`):**
+- `secrets.py` - Contains OpenAI API key
+- `.streamlit/secrets.toml` - Contains Google OAuth credentials
+- `data/app.db` - User database with passwords
+- `data/pdfs/` - Uploaded PDFs
+- `__pycache__/` - Python cache files
+- `.venv/` - Virtual environment
+
+**For submission:**
+- The `.example` files show the format needed
+- Never share real API keys or credentials
+- The professor will use their own keys when testing
+
+## 🐛 Troubleshooting
+
+**"Module not found" errors:**
+```bash
+pip install -r requirements.txt
 ```
 
+**Chatbot not working:**
+- Check that `secrets.py` exists with valid OpenAI API key
+- Verify the key starts with `sk-`
+
+**Google sign-in not working:**
+- Ensure `.streamlit/secrets.toml` exists with valid credentials
+- Check redirect URI matches in both secrets.toml and Google Console
+- For local testing: use `http://localhost:8501`
+- For Cloudflare: use your cloudflare URL
+
+**Database errors:**
+- Delete `data/app.db` to reset (creates fresh database on next run)
+
+## 👥 Team Members
+[Add your team member names here]
+
+## 📝 Assignment Requirements Checklist
+
+- ✅ Email/password authentication
+- ✅ SQLite database integration
+- ✅ Create and manage notes
+- ✅ View all users' notes
+- ✅ Google Sign-in (+20 bonus)
+- ✅ Chatbot UI (+10 bonus)
+- ✅ Hashed passwords with bcrypt (+5 bonus)
+- ✅ Public link via Cloudflare (+5 bonus)
+- ⏳ Video demonstration
+- ⏳ ZIP file submission
 ## 🔒 Security Notes
 
 - `secrets.py` contains your OpenAI API key - **never commit this file**
