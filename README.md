@@ -25,7 +25,8 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 
 ### 1) Install
 ```bash
-git clone <repository-url>
+
+git clone https://github.com/sdanieldlr/streamlit_app
 cd streamlit_app
 python -m venv .venv
 .venv\Scripts\activate   # Windows
