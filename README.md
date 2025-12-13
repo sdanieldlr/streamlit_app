@@ -29,6 +29,7 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 ```bash
 # Extract the ZIP file, then navigate to the folder
 cd streamlit_app
+# (Skip the cd command if you're already inside the streamlit_app folder)
 ```
 
 **Option B: Clone from GitHub (for peers/testers)**
