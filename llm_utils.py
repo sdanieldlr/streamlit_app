@@ -20,11 +20,18 @@ def _get_api_key():
         return key
 
     try:
-        #We create secrets.py with:  OPENAI_API_KEY = "sk-...."
-        from secrets import OPENAI_API_KEY  # type: ignore
-        return OPENAI_API_KEY
+        # Import from local secrets.py file
+        import sys
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("secrets", "secrets.py")
+        if spec and spec.loader:
+            secrets_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(secrets_module)
+            return secrets_module.OPENAI_API_KEY
     except Exception:
-        return None
+        pass
+    
+    return None
 
 
 def _get_client():
@@ -99,13 +106,14 @@ def extract_keywords(text: str) -> list[str]:
     return parts
 
 
-def chat_reply(message: str, history: list[dict] | None = None) -> str:
+def chat_reply(message: str, history: list[dict] | None = None, notes_context: str = "") -> str:
     """
-    Simple chatbot reply.
+    Simple chatbot reply with notes context.
 
     history is a list of previous messages:
         [{"role": "user", "content": "hi"},
          {"role": "assistant", "content": "hello"}]
+    notes_context is a string containing all the user's notes
     """
     if history is None:
         history = []
@@ -117,13 +125,19 @@ def chat_reply(message: str, history: list[dict] | None = None) -> str:
             "variable or create secrets.py with OPENAI_API_KEY."
         )
 
+    system_message = (
+        "You are a friendly, helpful assistant inside a notes app. "
+        "Answer in a natural, simple way. Be short and to the point. "
+        "You have access to the user's notes and can reference them to answer questions."
+    )
+    
+    if notes_context:
+        system_message += notes_context
+
     messages = [
         {
             "role": "system",
-            "content": (
-                "You are a friendly, helpful assistant inside a notes app. "
-                "Answer in a natural, simple way. Be short and to the point."
-            ),
+            "content": system_message,
         },
         *history,
         {"role": "user", "content": message},

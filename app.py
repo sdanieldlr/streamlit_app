@@ -40,7 +40,7 @@ else:
         st.subheader("Create a new note")
 
         title = st.text_input("Title")
-        content = st.text_area("Content")
+        content = st.text_area("Content/Description")
         uploaded_file = st.file_uploader("Attach PDF (optional)", type=["pdf"])
 
         if st.button("Save Note"):
@@ -70,15 +70,17 @@ else:
             if pdf_text:
                 final_content = f"{content}\n\n--- PDF Content ---\n{pdf_text}" if content else pdf_text
             
-            if title.strip() and (final_content.strip() or pdf_path):
+            if not title.strip():
+                st.warning("Please provide a title.")
+            elif not content.strip():
+                st.warning("Please provide a description/content.")
+            else:
                 if user.get("id") is None:
                     st.error("Could not find your user ID. Try logging out and back in.")
                 else:
                     create_note(user["id"], title, final_content, pdf_path)
                     st.success("Note saved!")
                     st.rerun()
-            else:
-                st.error("Title and content/PDF cannot be empty.")
 
         st.subheader("Your Notes")
 
@@ -100,10 +102,16 @@ else:
                         else:
                             st.error("Failed to delete note.")
                 if note_content:
-                    st.write(note_content)
+                    # Only show content before the PDF separator (hide extracted PDF text)
+                    if "--- PDF Content ---" in note_content:
+                        display_content = note_content.split("--- PDF Content ---")[0].strip()
+                        if display_content:
+                            st.write(display_content)
+                    else:
+                        st.write(note_content)
                 if pdf_path and os.path.exists(pdf_path):
                     with open(pdf_path, "rb") as f:
-                        st.download_button("📄 Download PDF", f.read(), file_name=os.path.basename(pdf_path), mime="application/pdf")
+                        st.download_button("📄 Download PDF", f.read(), file_name=os.path.basename(pdf_path), mime="application/pdf", key=f"download_{note_id}")
                 st.caption(f"Created at: {created_at}")
                 st.markdown("---")
         else:
@@ -116,7 +124,13 @@ else:
             for note_id, email, title, content, created_at, pdf_path in all_notes:
                 st.markdown(f"### {title}  \n*by {email}*")
                 if content:
-                    st.write(content)
+                    # Only show content before the PDF separator (hide extracted PDF text)
+                    if "--- PDF Content ---" in content:
+                        display_content = content.split("--- PDF Content ---")[0].strip()
+                        if display_content:
+                            st.write(display_content)
+                    else:
+                        st.write(content)
                 if pdf_path and os.path.exists(pdf_path):
                     with open(pdf_path, "rb") as f:
                         pdf_bytes = f.read()
@@ -131,7 +145,7 @@ else:
     with tab3:
         st.subheader("Chatbot")
         
-        st.info("💬 This AI chatbot can help you with questions about your notes. It has access to all notes in the system (yours and others'), so you can ask about any content stored in the app. Try asking to summarize notes, find specific information, or get insights from the stored content.")
+        st.info("💬 This AI chatbot has access to all your notes and can answer questions about them. Ask to summarize notes, find specific information, or get insights from your content.")
 
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = []
@@ -143,13 +157,21 @@ else:
 
         # User input
         if prompt := st.chat_input("Ask me anything..."):
+            # Load all user notes as context
+            user_notes = get_user_notes(user["id"])
+            notes_context = ""
+            if user_notes:
+                notes_context = "\\n\\nHere are all the user's notes:\\n\\n"
+                for note_id, title, content, created_at, pdf_path in user_notes:
+                    notes_context += f"**{title}**\\n{content}\\n\\n"
+            
             # Add user message to history
             st.session_state.chat_history.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.write(prompt)
 
-            # Get AI response
-            response = chat_reply(prompt, st.session_state.chat_history[:-1])  # Exclude the latest user message from history for reply
+            # Get AI response with notes context
+            response = chat_reply(prompt, st.session_state.chat_history[:-1], notes_context=notes_context)
             st.session_state.chat_history.append({"role": "assistant", "content": response})
             with st.chat_message("assistant"):
                 st.write(response)
