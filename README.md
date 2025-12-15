@@ -15,43 +15,41 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 - PDF upload and embedded viewer
 - Account management page with logout, password change, and account deletion
 
-### Bonus Features (+40 Points):
-- **Google Sign-in** (+20 points) - OAuth 2.0 integration
-- **Chatbot UI** (+10 points) - GPT-4o-mini powered assistant that can read note content and PDFs
-- **Hashed Passwords** (+5 points) - Secure bcrypt password storage
-- **Public Link** (+5 points) - Cloudflare tunnel deployment
+### Bonus Features:
+- **Google Sign-in** - OAuth 2.0 integration
+- **Chatbot UI** - GPT-4o-mini powered assistant that can read note content and PDFs
+- **Hashed Passwords** - Secure bcrypt password storage
+- **Public Link** - Cloudflare tunnel deployment
 
 ## Instructions for Peers/Testers
 
-### Quick Summary
+### Setup Overview
 
-**Minimum setup** (just to run the app locally):
-1. Install Python dependencies
-2. Add OpenAI API key
-3. Run `streamlit run app.py`
+**Required:**
+1. Install dependencies
+2. Configure OpenAI API key
+3. Run application
 
-**Optional extras** (for bonus points):
-- Step 3: Google Sign-in (+20 points) - requires Google Cloud setup
-- Step 5: Public URL (+5 points) - requires Cloudflare installation
+**Optional:**
+- Step 3: Google OAuth configuration
+- Step 5: Cloudflare tunnel for public access
 
 ---
 
 ### 1) Install
 
-**Option A: From ZIP file (for submission)**
+**Option A: From ZIP file**
 ```bash
-# Extract the ZIP file, then navigate to the folder
 cd streamlit_app
-# (Skip the cd command if you're already inside the streamlit_app folder)
 ```
 
-**Option B: Clone from GitHub (for peers/testers)**
+**Option B: Clone from repository**
 ```bash
 git clone https://github.com/sdanieldlr/streamlit_app
 cd streamlit_app
 ```
 
-**Then continue with:**
+**Install dependencies:**
 ```bash
 python -m venv .venv
 .venv\Scripts\activate   # Windows
@@ -72,38 +70,30 @@ Edit `secrets.py` and set your key:
 OPENAI_API_KEY = "sk-your-openai-key"
 ```
 
-### 3) Enable Google Sign-in (Optional - for +20 bonus points)
+### 3) Enable Google Sign-in (Optional)
 
-**⚠️ Note:** You can skip this step and just use email/password login. Google Sign-in is optional.
+#### Step 3.1: Create OAuth Project
 
-#### Step 3.1: Create Google OAuth Project
+1. Navigate to [Google Cloud Console](https://console.cloud.google.com/)
+2. Authenticate with Google account
+3. Select "New Project"
+4. Enter project name
+5. Create and select project
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Sign in with your Google account
-3. Click "Select a project" at the top → "New Project"
-4. Name your project (e.g., "Streamlit Notes App") → Click "Create"
-5. Wait for the project to be created, then select it
+#### Step 3.2: Configure Consent Screen
 
-#### Step 3.2: Configure OAuth Consent Screen
+1. Navigate to APIs & Services → OAuth consent screen
+2. Select External user type
+3. Enter required fields: app name, support email, developer contact
+4. Save configuration
 
-1. In the left menu, go to "APIs & Services" → "OAuth consent screen"
-2. Select **External** → Click "Create"
-3. Fill in required fields:
-   - App name: "Streamlit Notes App"
-   - User support email: your email
-   - Developer contact: your email
-4. Click "Save and Continue" → "Save and Continue" → "Save and Continue"
+#### Step 3.3: Create Credentials
 
-#### Step 3.3: Create OAuth Credentials
-
-1. In the left menu, go to "APIs & Services" → "Credentials"
-2. Click "Create Credentials" → "OAuth client ID"
-3. Application type: **Web application**
-4. Name: "Streamlit App"
-5. Under "Authorized redirect URIs", click "Add URI"
-6. Add: `http://localhost:8501`
-7. Click "Create"
-8. Copy your **Client ID** and **Client Secret** (save them somewhere safe)
+1. Navigate to APIs & Services → Credentials
+2. Create Credentials → OAuth client ID
+3. Application type: Web application
+4. Add authorized redirect URI: `http://localhost:8501`
+5. Create and save Client ID and Client Secret
 
 #### Step 3.4: Add Credentials to Your App
 
@@ -121,14 +111,13 @@ client_secret = "YOUR-CLIENT-SECRET"
 redirect_uri = "http://localhost:8501"
 ```
 
-#### Step 3.5: Add Test Users (Important!)
+#### Step 3.5: Add Test Users
 
-1. Back in Google Cloud Console, go to "OAuth consent screen"
-2. Scroll to "Test users" → Click "Add Users"
-3. Add your Gmail address (the one you'll use to test login)
-4. Click "Save"
+1. Navigate to OAuth consent screen
+2. Add test user email addresses
+3. Save configuration
 
-**Why?** Your app is in "Testing" mode, so only specific users can log in.
+Note: Application status is Testing. Only authorized test users can authenticate.
 
 ### 4) Run locally
 ```bash
@@ -136,18 +125,14 @@ streamlit run app.py
 ```
 Open `http://localhost:8501`.
 
-### 5) Public link via Cloudflare (Optional - for +5 bonus points)
+### 5) Cloudflare Tunnel Configuration (Optional)
 
-**⚠️ Note:** This step is optional and only needed if you want a public URL for the bonus points or demo video.
-
-#### Step 5.1: Install Cloudflare Tunnel
+#### Step 5.1: Install Cloudflared
 
 **Windows:**
-1. Download from: https://github.com/cloudflare/cloudflared/releases
-2. Look for `cloudflared-windows-amd64.exe`
-3. Download it to your Downloads folder
-4. Rename it to `cloudflared.exe`
-5. Move it to `C:\Windows\System32\` (or add to PATH)
+1. Download `cloudflared-windows-amd64.exe` from https://github.com/cloudflare/cloudflared/releases
+2. Rename to `cloudflared.exe`
+3. Move to `C:\Windows\System32\` or add to PATH
 
 **macOS:**
 ```bash
@@ -161,41 +146,43 @@ sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
 sudo chmod +x /usr/local/bin/cloudflared
 ```
 
-#### Step 5.2: Run Cloudflare Tunnel
+#### Step 5.2: Execute Tunnel
 
-Open a **second terminal** (keep your Streamlit app running in the first one):
+Open second terminal:
 
 ```bash
 cloudflared tunnel --url http://localhost:8501
 ```
 
-You'll see output like:
+Output:
 ```
-Your quick tunnel has been created! Visit it at:
 https://abc-xyz-123.trycloudflare.com
 ```
 
-Copy this URL.
+Copy generated URL.
 
-#### Step 5.3: Update Google OAuth (if using Google Sign-in)
+#### Step 5.3: Update OAuth Configuration
 
-If you set up Google OAuth in Step 3:
+Required if using Google Sign-in:
 
-1. Open `.streamlit/secrets.toml`
-2. Change `redirect_uri` to your Cloudflare URL:
+1. Update `.streamlit/secrets.toml`:
    ```toml
    redirect_uri = "https://abc-xyz-123.trycloudflare.com"
    ```
 
-3. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
-4. Click your OAuth client
-5. Under "Authorized redirect URIs", click "Add URI"
-6. Add: `https://abc-xyz-123.trycloudflare.com`
-7. Click "Save"
+2. Navigate to Google Cloud Console → APIs & Services → Credentials
+3. Select OAuth client
+4. Add authorized redirect URI: `https://abc-xyz-123.trycloudflare.com`
+5. Save configuration
 
-8. **Restart your Streamlit app** (stop and run `streamlit run app.py` again)
+6. Restart Streamlit application in first terminal:
+   ```bash
+   Ctrl+C
+   streamlit run app.py
+   ```
+   Maintain Cloudflare tunnel in second terminal.
 
-Now your app is publicly accessible at the Cloudflare URL!
+Application accessible at Cloudflare URL.
 
 ## Troubleshooting
 
