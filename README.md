@@ -111,21 +111,13 @@ client_secret = "YOUR-CLIENT-SECRET"
 redirect_uri = "http://localhost:8501"
 ```
 
-#### Step 3.5: Add Test Users
-
-1. Navigate to OAuth consent screen
-2. Add test user email addresses
-3. Save configuration
-
-Note: Application status is Testing. Only authorized test users can authenticate.
-
 ### 4) Run locally
 ```bash
 streamlit run app.py
 ```
 Open `http://localhost:8501`.
 
-### 5) Cloudflare Tunnel Configuration (Optional)
+### 5) Cloudflare Tunnel Configuration
 
 #### Step 5.1: Install Cloudflared
 
