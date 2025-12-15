@@ -52,9 +52,18 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 3. Open terminal in VS Code (Terminal → New Terminal)
 
 **Install dependencies:**
+
+Windows:
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+macOS/Linux:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
