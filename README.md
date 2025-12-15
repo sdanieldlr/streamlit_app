@@ -3,7 +3,7 @@
 A full-stack notes application built with Streamlit, featuring user authentication, SQLite database, PDF uploads, and OpenAI-powered chatbot.
 
 ## Demo Video
-[Insert your video link here]
+https://drive.google.com/file/d/1evAcAnl-Buz3WALOWUJ7JKvPoE1MFsuh/view?usp=sharing
 
 ## Features Implemented
 
