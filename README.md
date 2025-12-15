@@ -39,22 +39,22 @@ A full-stack notes application built with Streamlit, featuring user authenticati
 ### 1) Install
 
 **Option A: From ZIP file**
-```bash
-cd streamlit_app
-```
+1. Extract ZIP file
+2. Open folder in VS Code (File → Open Folder → Select `streamlit_app`)
+3. Open terminal in VS Code (Terminal → New Terminal)
 
 **Option B: Clone from repository**
-```bash
-git clone https://github.com/sdanieldlr/streamlit_app
-cd streamlit_app
-```
+1. Clone repository:
+   ```bash
+   git clone https://github.com/sdanieldlr/streamlit_app
+   ```
+2. Open folder in VS Code (File → Open Folder → Select `streamlit_app`)
+3. Open terminal in VS Code (Terminal → New Terminal)
 
 **Install dependencies:**
 ```bash
 python -m venv .venv
-.venv\Scripts\activate   # Windows
-# or
-source .venv/bin/activate   # macOS/Linux
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
